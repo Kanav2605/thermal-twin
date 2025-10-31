@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Thermal Digital Twin</title>
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Simple scrollbar for dark mode */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+    </style>
+    <script>
+        // 2. Configure Tailwind for dark mode
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans flex min-h-screen">
+
+    <!-- 3. Sidebar Navigation -->
+    <aside class="w-64 bg-gray-900 border-r border-gray-700 p-6 flex flex-col fixed h-full">
+        <h2 class="text-2xl font-bold text-white mb-6">Navigation</h2>
+        <nav class="flex flex-col space-y-2">
+            <!-- Give IDs to links to control pages -->
+            <a href="#" id="nav-dashboard" class="flex items-center p-3 rounded-lg bg-gray-700 text-white font-medium">
+                <span class="mr-3">🏠</span> Dashboard
+            </a>
+            <a href="#" id="nav-qa" class="flex items-center p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white">
+                <span class="mr-3">❓</span> Q&A
+            </a>
+            <a href="#" id="nav-zones" class="flex items-center p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white">
+                <span class="mr-3">📍</span> Zones
+            </a>
+            <a href="#" id="nav-forecast" class="flex items-center p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white">
+                <span class="mr-3">📈</span> Forecast
+            </a>
+            <a href="#" id="nav-roi" class="flex items-center p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white">
+                <span class="mr-3">🎯</span> ROI
+            </a>
+            <a href="#" id="nav-analytics" class="flex items-center p-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white">
+                <span class="mr-3">📊</span> Analytics
+            </a>
+        </nav>
+        <div class="mt-auto text-sm text-gray-500">
+            Chandigarh University Thermal Digital Twin © 2025
+        </div>
+    </aside>
+
+    <!-- 4. Main Content Area -->
+    <main class="flex-1 ml-64 p-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <header class="mb-8">
+                <h1 class="text-4xl font-bold text-white flex items-center">
+                    <span class="mr-3">🏆</span> Chandigarh University Thermal Digital Twin
+                </h1>
+                <p class="text-xl text-gray-400 mt-2">
+                    Real-time Campus Thermal Analysis & Smart Recommendations
+                </p>
+            </header>
+
+            <!-- ========= PAGES CONTAINER ========= -->
+            
+            <!-- Dashboard Content (Visible by default) -->
+            <section id="dashboard-page" class="page-section">
+                <h2 class="text-3xl font-semibold text-white mb-6">
+                    Campus Thermal Status
+                </h2>
+                
+                <!-- Table Container -->
+                <div class="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+                    <table class="w-full text-left">
+                        <!-- Table Header -->
+                        <thead class="bg-gray-700 uppercase text-sm text-gray-400">
+                            <tr>
+                                <th class="p-4">#</th>
+                                <th class="p-4">Zone</th>
+                                <th class="p-4">Temp</th>
+                                <th class="p-4">UV</th>
+                                <th class="p-4">Status</th>
+                            </tr>
+                        </thead>
+                        <!-- Table Body - will be populated by JavaScript -->
+                        <tbody id="thermal-table-body" class="divide-y divide-gray-700">
+                            <!-- JS will insert rows here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Forecast Page (Hidden by default) -->
+            <section id="forecast-page" class="page-section" hidden>
+                <h2 class="text-3xl font-semibold text-white mb-6">
+                    Forecast Thermal Conditions
+                </h2>
+                
+                <!-- Input Controls -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 p-6 bg-gray-800 rounded-lg">
+                    <!-- Zone Select -->
+                    <div>
+                        <label for="zone-select" class="block text-sm font-medium text-gray-400 mb-2">Select Zone</label>
+                        <select id="zone-select" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <!-- Options populated by JS -->
+                        </select>
+                    </div>
+                    <!-- Date Select -->
+                    <div>
+                        <label for="date-input" class="block text-sm font-medium text-gray-400 mb-2">Select Date</label>
+                        <input type="date" id="date-input" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <!-- Time Select -->
+                    <div>
+                        <label for="time-input" class="block text-sm font-medium text-gray-400 mb-2">Select Time</label>
+                        <input type="time" id="time-input" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <!-- Forecast Button -->
+                    <div class="flex items-end">
+                        <button id="run-forecast-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                            Run Forecast
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Forecast Results (Hidden until forecast is run) -->
+                <div id="forecast-results" class="bg-gray-800 rounded-lg p-6" hidden>
+                    <h3 class="text-2xl font-semibold text-white mb-4">Forecast Results</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Result Metrics -->
+                        <div class="bg-gray-700 p-6 rounded-lg">
+                            <div class="text-sm font-medium text-gray-400 mb-1">Selected Zone</div>
+                            <div id="result-zone" class="text-2xl font-bold text-white">-</div>
+                        </div>
+                        <div class="bg-gray-700 p-6 rounded-lg">
+                            <div class="text-sm font-medium text-gray-400 mb-1">Predicted Temp</div>
+                            <div id="result-temp" class="text-2xl font-bold text-white">-</div>
+                        </div>
+                        <div class="bg-gray-700 p-6 rounded-lg">
+                            <div class="text-sm font-medium text-gray-400 mb-1">Predicted UV Index</div>
+                            <div id="result-uv" class="text-2xl font-bold text-white">-</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Other pages would go here, hidden by default -->
+            <section id="qa-page" class="page-section" hidden>
+                 <h2 class="text-3xl font-semibold text-white mb-6">Q&A</h2>
+                 <p class="text-gray-400">This page is under construction.</p>
+            </section>
+            <section id="zones-page" class="page-section" hidden>
+                 <h2 class="text-3xl font-semibold text-white mb-6">Zones</h2>
+                 <p class="text-gray-400">This page is under construction.</p>
+            </section>
+            <section id="roi-page" class="page-section" hidden>
+                 <h2 class="text-3xl font-semibold text-white mb-6">ROI</h2>
+                 <p class="text-gray-400">This page is under construction.</p>
+            </section>
+            <section id="analytics-page" class="page-section" hidden>
+                 <h2 class="text-3xl font-semibold text-white mb-6">Analytics</h2>
+                 <p class="text-gray-400">This page is under construction.</p>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // 5. JavaScript "Backend" (Mock Data)
+        const mockData = [
+            { id: 0, zone: "Main Parking Lot", temp: 41.1, uv: 9.9, status: "Hotspot" },
+            { id: 1, zone: "Academic Block A", temp: 37.6, uv: 6.2, status: "Medium" },
+            { id: 2, zone: "Academic Block B", temp: 36.8, uv: 8.0, status: "Medium" },
+            { id: 3, zone: "Boys Hostel 1", temp: 35.9, uv: 7.8, status: "Safe" },
+            { id: 4, zone: "Boys Hostel 2", temp: 36.3, uv: 7.9, status: "Medium" },
+            { id: 5, zone: "Girls Hostel", temp: 35.4, uv: 7.5, status: "Safe" },
+            { id: 6, zone: "Sports Stadium", temp: 41.1, uv: 10.2, status: "Hotspot" },
+            { id: 7, zone: "Central Library", temp: 34.0, uv: 6.2, status: "Safe" },
+            { id: 8, zone: "Green Quad", temp: 30.2, uv: 7.6, status: "Safe" },
+            { id: 9, zone: "Food Court", temp: 37.9, uv: 8.5, status: "Medium" },
+        ];
+
+        // 6. JavaScript Logic to build the app
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Dashboard Page Logic ---
+            const tableBody = document.getElementById('thermal-table-body');
+            if (tableBody) {
+                populateDashboardTable();
+            }
+
+            // --- Forecast Page Logic ---
+            const zoneSelect = document.getElementById('zone-select');
+            if (zoneSelect) {
+                populateZoneSelector();
+            }
+
+            // Set default date and time
+            const dateInput = document.getElementById('date-input');
+            const timeInput = document.getElementById('time-input');
+            if(dateInput && timeInput) {
+                dateInput.valueAsDate = new Date();
+                timeInput.value = new Date().toTimeString().substring(0, 5);
+            }
+
+            // Forecast button click
+            const forecastBtn = document.getElementById('run-forecast-btn');
+            if (forecastBtn) {
+                forecastBtn.addEventListener('click', runMockForecast);
+            }
+
+            // --- Navigation Logic ---
+            setupNavigation();
+        });
+
+        // --- Re-usable Functions ---
+
+        function populateDashboardTable() {
+            const tableBody = document.getElementById('thermal-table-body');
+            tableBody.innerHTML = ''; // Clear existing rows
+            
+            mockData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-750 transition-colors';
+                
+                tr.innerHTML = `
+                    <td class="p-4 text-gray-400">${row.id}</td>
+                    <td class="p-4 font-medium">${row.zone}</td>
+                    <td class="p-4">${row.temp.toFixed(1)}°C</td>
+                    <td class="p-4">${row.uv.toFixed(1)}</td>
+                    <td class="p-4 ${getStatusClass(row.status)}">${row.status}</td>
+                `;
+                
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function populateZoneSelector() {
+            const zoneSelect = document.getElementById('zone-select');
+            zoneSelect.innerHTML = ''; // Clear existing options
+            
+            mockData.forEach(row => {
+                const option = document.createElement('option');
+                option.value = row.zone;
+                option.textContent = row.zone;
+                zoneSelect.appendChild(option);
+            });
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Hotspot': return 'text-red-400 font-bold';
+                case 'Medium': return 'text-orange-400';
+                case 'Safe': return 'text-green-400';
+                default: return '';
+            }
+        }
+
+        function runMockForecast() {
+            // Get inputs
+            const zone = document.getElementById('zone-select').value;
+            const date = document.getElementById('date-input').value;
+            const time = document.getElementById('time-input').value;
+
+            // Simple mock logic (replace with real API call later)
+            // This just generates a random-ish prediction
+            const mockTemp = (Math.random() * 15 + 25).toFixed(1); // Temp between 25.0 and 40.0
+            const mockUV = (Math.random() * 10 + 1).toFixed(1);   // UV between 1.0 and 11.0
+
+            // Show results container
+            document.getElementById('forecast-results').removeAttribute('hidden');
+
+            // Display results
+            document.getElementById('result-zone').textContent = zone;
+            document.getElementById('result-temp').textContent = `${mockTemp}°C`;
+            document.getElementById('result-uv').textContent = mockUV;
+        }
+
+        function setupNavigation() {
+            const navLinks = document.querySelectorAll('aside nav a');
+            const pages = document.querySelectorAll('.page-section');
+
+            const pageMap = {
+                'nav-dashboard': 'dashboard-page',
+                'nav-qa': 'qa-page',
+                'nav-zones': 'zones-page',
+                'nav-forecast': 'forecast-page',
+                'nav-roi': 'roi-page',
+                'nav-analytics': 'analytics-page',
+            };
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    const targetPageId = pageMap[link.id];
+                    if (!targetPageId) return;
+
+                    // 1. Hide all pages
+                    pages.forEach(page => page.setAttribute('hidden', true));
+
+                    // 2. Show target page
+                    const targetPage = document.getElementById(targetPageId);
+                    if (targetPage) {
+                        targetPage.removeAttribute('hidden');
+                    }
+
+                    // 3. Update active link style
+                    navLinks.forEach(nav => {
+                        nav.classList.remove('bg-gray-700', 'text-white');
+                        nav.classList.add('text-gray-400', 'hover:bg-gray-800');
+                    });
+                    link.classList.add('bg-gray-700', 'text-white');
+                    link.classList.remove('text-gray-400', 'hover:bg-gray-800');
+                });
+            });
+        }
+
+    </script>
+
+</body>
+</html>
+

@@ -19,7 +19,6 @@ try:
     print("Model loaded successfully.")
 except FileNotFoundError:
     print(f"Error: Model file '{MODEL_FILE}' not found.")
-    print("Please run train_model.py to create the model file.")
     pipeline = None
 
 print("Loading dashboard data...")
@@ -28,10 +27,9 @@ try:
     print("Dashboard data loaded successfully.")
 except FileNotFoundError:
     print(f"Error: Data file '{DATA_FILE}' not found.")
-    print("Please run create_dataset.py to create the data file.")
     dashboard_df = pd.DataFrame()
 
-# --- Helper Function ---
+# --- Status Helper ---
 def get_status(temp):
     if temp > 40:
         return "Hotspot"
@@ -44,7 +42,7 @@ def get_status(temp):
 app = Flask(__name__)
 CORS(app)
 
-# --- API Endpoints ---
+# --- API: Dashboard Data ---
 @app.route('/api/dashboard', methods=['GET'])
 def get_dashboard_data():
     if dashboard_df.empty:
@@ -54,17 +52,20 @@ def get_dashboard_data():
     latest_data['id'] = latest_data.index
     latest_data['status'] = latest_data['temp'].apply(get_status)
     latest_data = latest_data[['id', 'zone', 'temp', 'uv', 'status']]
+    
     return jsonify(latest_data.to_dict(orient='records'))
 
+# --- API: Forecast ---
 @app.route('/api/forecast', methods=['POST'])
 def run_forecast():
     if pipeline is None:
-        return jsonify({"error": "Model not loaded on server"}), 500
+        return jsonify({"error": "Model not available on server"}), 500
 
     data = request.json
     timestamp = pd.to_datetime(f"{data['date']} {data['time']}")
     zone = data['zone']
 
+    # Prepare DataFrame
     X_pred = pd.DataFrame({
         'timestamp': [timestamp],
         'zone': [zone]
@@ -75,16 +76,17 @@ def run_forecast():
     X_pred['month'] = X_pred['timestamp'].dt.month
 
     for z in ZONES:
-        X_pred[f'zone_{z}'] = (z == zone)
+        X_pred[f'zone_{z}'] = (zone == z)
 
     features = ['hour', 'dayofweek', 'month'] + [f'zone_{z}' for z in ZONES]
     X_pred = X_pred[features]
 
     prediction = pipeline.predict(X_pred)
     return jsonify({
-        'temp': prediction[0][0],
-        'uv': prediction[0][1]
+        'temp': float(prediction[0][0]),
+        'uv': float(prediction[0][1])
     })
 
+# --- Run App ---
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000)

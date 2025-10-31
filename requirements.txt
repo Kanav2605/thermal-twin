@@ -4,3 +4,6 @@ scikit-learn
 joblib
 gunicorn
 numpy
+Flask
+flask-cors
+
